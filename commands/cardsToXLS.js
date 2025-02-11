@@ -86,7 +86,7 @@ module.exports = {
                     name: card.name,
                     mana_cost: card.mana_cost || '',
                     type_line: card.type_line || '',
-                    set_name: card.rarity || '',
+                    rarity: card.rarity || '',
                     oracle_text: card.oracle_text || '',
                     pt_loyalty_defense: ptLoyaltyDefense || ''
                 });
