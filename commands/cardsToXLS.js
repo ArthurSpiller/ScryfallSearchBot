@@ -53,7 +53,7 @@ module.exports = {
                 { header: 'Name', key: 'name', width: 30 },
                 { header: 'Mana Cost', key: 'mana_cost', width: 15 },
                 { header: 'Type', key: 'type_line', width: 30 },
-                { header: 'Set', key: 'set_name', width: 20 },
+                { header: 'Rarity', key: 'rarity', width: 20 },
                 { header: 'Oracle Text', key: 'oracle_text', width: 50 },
                 { header: 'P/T or Loyalty or Defense', key: 'pt_loyalty_defense', width: 15 }
             ];
@@ -86,7 +86,7 @@ module.exports = {
                     name: card.name,
                     mana_cost: card.mana_cost || '',
                     type_line: card.type_line || '',
-                    set_name: card.set_name || '',
+                    set_name: card.rarity || '',
                     oracle_text: card.oracle_text || '',
                     pt_loyalty_defense: ptLoyaltyDefense || ''
                 });
