@@ -42,15 +42,28 @@ module.exports = {
             // A helper function to generate an embed for a given card index.
             function generateEmbed(index) {
                 const card = cards[index];
+                let description = card.oracle_text;
+                let mana_cost = card.mana_cost;
+                if (card.card_faces) {
+                    description = card.card_faces[0].oracle_text + "\n=====================================\n" + card.card_faces[1].oracle_text;
+                    if (card.card_faces[1].mana_cost != "")
+                        mana_cost = card.card_faces[0].mana_cost + " // " + card.card_faces[1].mana_cost;
+                    else
+                        mana_cost = card.card_faces[0].mana_cost;
+                }
+
                 return {
                     headers: query,
                     title: card.name,
-                    description: card.oracle_text || (card.card_faces && card.card_faces[0].oracle_text) || 'No description available.',
+                    description: description || 'No description available.',
                     fields: [
-                        { name: 'Mana Cost', value: card.mana_cost || (card.card_faces && card.card_faces[0].mana_cost) || 'N/A', inline: true },
+                        { name: 'Mana Cost', value: mana_cost || 'N/A', inline: true },
                         { name: 'Type', value: card.type_line || 'N/A', inline: true },
                         { name: 'Set', value: card.set_name || 'N/A', inline: true },
                     ],
+                    thumbnail: {
+                        url: card.card_faces?.[1]?.image_uris?.normal || ''
+                    },
                     image: {
                         url: card.image_uris?.normal ||
                             (card.card_faces && card.card_faces[0].image_uris.normal) ||
