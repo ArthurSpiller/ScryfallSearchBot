@@ -1,9 +1,9 @@
 // commands/card.js
-const { 
-    SlashCommandBuilder, 
-    ActionRowBuilder, 
-    ButtonBuilder, 
-    ButtonStyle 
+const {
+    SlashCommandBuilder,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle
 } = require('discord.js');
 // If you're on Node 18+, the global fetch API is available; otherwise, uncomment the next line.
 // const fetch = require('node-fetch');
@@ -43,10 +43,11 @@ module.exports = {
             function generateEmbed(index) {
                 const card = cards[index];
                 return {
+                    headers: query,
                     title: card.name,
-                    description: card.oracle_text || 'No description available.',
+                    description: card.oracle_text || (card.card_faces && card.card_faces[0].oracle_text) || 'No description available.',
                     fields: [
-                        { name: 'Mana Cost', value: card.mana_cost || 'N/A', inline: true },
+                        { name: 'Mana Cost', value: card.mana_cost || (card.card_faces && card.card_faces[0].mana_cost) || 'N/A', inline: true },
                         { name: 'Type', value: card.type_line || 'N/A', inline: true },
                         { name: 'Set', value: card.set_name || 'N/A', inline: true },
                     ],
@@ -55,7 +56,7 @@ module.exports = {
                             (card.card_faces && card.card_faces[0].image_uris.normal) ||
                             ''
                     },
-                    footer: { text: `Card ${index + 1} of ${cards.length} • Data provided by Scryfall` }
+                    footer: { text: `Card ${index + 1} of ${cards.length} • Data provided by Scryfall\nQuery: ${query}` }
                 };
             }
 
@@ -72,9 +73,9 @@ module.exports = {
             );
 
             // Send the initial embed along with the buttons.
-            const message = await interaction.editReply({ 
-                embeds: [generateEmbed(currentIndex)], 
-                components: [row] 
+            const message = await interaction.editReply({
+                embeds: [generateEmbed(currentIndex)],
+                components: [row]
             });
 
             // Create a message component collector that listens for button interactions.

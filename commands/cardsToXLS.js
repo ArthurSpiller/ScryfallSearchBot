@@ -65,13 +65,13 @@ module.exports = {
 
                 if (typeLine.includes('creature') || typeLine.includes('vehicle')) {
                     // If power or toughness is missing, substitute "N/A"
-                    const power = card.power ? card.power : 'N/A';
-                    const toughness = card.toughness ? card.toughness : 'N/A';
+                    const power = card.power || (card.card_faces && card.card_faces[0].power) || 'N/A';
+                    const toughness = card.toughness || (card.card_faces && card.card_faces[0].toughness) || 'N/A';
                     ptLoyaltyDefense = `${power}/${toughness}`;
                 } else if (typeLine.includes('planeswalker')) {
                     ptLoyaltyDefense = card.loyalty ? card.loyalty : 'N/A';
                 } else if (typeLine.includes('battle')) {
-                    ptLoyaltyDefense = card.defense ? card.defense : 'N/A';
+                    ptLoyaltyDefense = card.defense || (card.card_faces && card.card_faces[0].defense) || 'N/A';
                 } else {
                     ptLoyaltyDefense = '';
                 }
@@ -84,10 +84,10 @@ module.exports = {
 
                 worksheet.addRow({
                     name: card.name,
-                    mana_cost: card.mana_cost || '',
+                    mana_cost: card.mana_cost || (card.card_faces && card.card_faces[0].mana_cost) || '',
                     type_line: card.type_line || '',
                     set_name: card.rarity || '',
-                    oracle_text: card.oracle_text || '',
+                    oracle_text: card.oracle_text || (card.card_faces && card.card_faces[0].oracle_text) || '',
                     pt_loyalty_defense: ptLoyaltyDefense || ''
                 });
             });
