@@ -88,6 +88,7 @@ module.exports = {
                     type_line: card.type_line || '',
                     set_name: card.rarity || '',
                     oracle_text: card.oracle_text || (card.card_faces && card.card_faces[0].oracle_text) || '',
+                    rarity: card.rarity || '',
                     pt_loyalty_defense: ptLoyaltyDefense || ''
                 });
             });
