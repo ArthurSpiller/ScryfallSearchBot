@@ -64,9 +64,11 @@ module.exports = {
                       .map(([format, status]) => `**${format.charAt(0).toUpperCase() + format.slice(1)}**: ${legalityEmojis[status] || "❓"}`)
                       .join("\n") || "No legalities available";
 
-                const CMId = card.cardmarket_id;
-                const CMUrl = `https://api.cardmarket.com/ws/v2.0/products/${CMId}`;
+                // const CMId = card.cardmarket_id;
+                // const CMUrl = `https://api.cardmarket.com/ws/v2.0/products/${CMId}`;
 
+                const CMUrl = card.purchase_uris.cardmarket;
+                
                 return {
                     title: card.name,
                     description: description || "No description available.",
