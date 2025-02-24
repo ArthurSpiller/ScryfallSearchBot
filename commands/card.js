@@ -20,60 +20,77 @@ module.exports = {
     async execute(interaction) {
         const query = interaction.options.getString('query');
 
-        // Defer reply if you expect the API call to take a moment.
         await interaction.deferReply();
 
         try {
-            // Call the Scryfall API with the search query.
             const url = `https://api.scryfall.com/cards/search?q=game:paper -t:contraption -t:attraction ${encodeURIComponent(query)}`;
             const response = await fetch(url);
             const data = await response.json();
 
-            // Check if the API returned an error or no results.
             if (data.object === 'error' || !data.data || data.data.length === 0) {
                 await interaction.editReply('No cards found matching your search.');
                 return;
             }
 
-            // Save the list of cards from the API.
             const cards = data.data;
             let currentIndex = 0;
 
-            // A helper function to generate an embed for a given card index.
-            function generateEmbed(index) {
+            async function generateEmbed(index) {
                 const card = cards[index];
+
                 let description = card.oracle_text;
                 let mana_cost = card.mana_cost;
+
                 if (card.card_faces) {
-                    description = card.card_faces[0].oracle_text + "\n=====================================\n" + card.card_faces[1].oracle_text;
-                    if (card.card_faces[1].mana_cost != "")
-                        mana_cost = card.card_faces[0].mana_cost + " // " + card.card_faces[1].mana_cost;
-                    else
-                        mana_cost = card.card_faces[0].mana_cost;
+                    description =
+                        card.card_faces[0].oracle_text +
+                        "\n=====================================\n" +
+                        card.card_faces[1].oracle_text;
+
+                    mana_cost = card.card_faces[1].mana_cost
+                        ? card.card_faces[0].mana_cost + " // " + card.card_faces[1].mana_cost
+                        : card.card_faces[0].mana_cost;
                 }
 
+                const legalityEmojis = {
+                    legal: "🟢",
+                    banned: "🔴",
+                    not_legal: "⚪",
+                    restricted: "🟠"
+                };
+
+                const legalities = card.legalities;
+                const formattedLegalities = Object.entries(legalities)
+                      .map(([format, status]) => `**${format.charAt(0).toUpperCase() + format.slice(1)}**: ${legalityEmojis[status] || "❓"}`)
+                      .join("\n") || "No legalities available";
+
+                const CMId = card.cardmarket_id;
+                const CMUrl = `https://api.cardmarket.com/ws/v2.0/products/${CMId}`;
+
                 return {
-                    headers: query,
                     title: card.name,
-                    description: description || 'No description available.',
+                    description: description || "No description available.",
                     fields: [
-                        { name: 'Mana Cost', value: mana_cost || 'N/A', inline: true },
-                        { name: 'Type', value: card.type_line || 'N/A', inline: true },
-                        { name: 'Set', value: card.set_name || 'N/A', inline: true },
+                        {name: "Mana Cost", value: mana_cost || "N/A", inline: true},
+                        {name: "Type", value: card.type_line || "N/A", inline: true},
+                        {name: "Set", value: card.set_name || "N/A", inline: true},
+                        {name: "Legalities", value: formattedLegalities, inline: false},
+                        {name: "CardMarket Value", value: `[View on Cardmarket](${CMUrl})`, inline: true}
                     ],
                     thumbnail: {
-                        url: card.card_faces?.[1]?.image_uris?.normal || ''
+                        url: card.card_faces?.[1]?.image_uris?.normal || ""
                     },
                     image: {
                         url: card.image_uris?.normal ||
                             (card.card_faces && card.card_faces[0].image_uris.normal) ||
-                            ''
+                            ""
                     },
-                    footer: { text: `Card ${index + 1} of ${cards.length} • Data provided by Scryfall\nQuery: ${query}` }
+                    footer: {
+                        text: `Card ${index + 1} of ${cards.length} • Data provided by Scryfall\nQuery: ${query}`
+                    }
                 };
             }
 
-            // Create buttons for pagination.
             const row = new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
                     .setCustomId('prev')
@@ -85,32 +102,26 @@ module.exports = {
                     .setStyle(ButtonStyle.Primary)
             );
 
-            // Send the initial embed along with the buttons.
             const message = await interaction.editReply({
-                embeds: [generateEmbed(currentIndex)],
+                embeds: [await generateEmbed(currentIndex)],
                 components: [row]
             });
 
-            // Create a message component collector that listens for button interactions.
             const collector = message.createMessageComponentCollector({
-                // Only allow interactions from the user who initiated the command.
                 filter: i => i.user.id === interaction.user.id,
-                time: 60000 // Collector will listen for 60 seconds.
+                time: 60000
             });
 
             collector.on('collect', async i => {
-                // Check which button was pressed and update the index accordingly.
                 if (i.customId === 'prev') {
                     currentIndex = (currentIndex === 0) ? cards.length - 1 : currentIndex - 1;
                 } else if (i.customId === 'next') {
                     currentIndex = (currentIndex === cards.length - 1) ? 0 : currentIndex + 1;
                 }
-                // Update the message with the new embed.
-                await i.update({ embeds: [generateEmbed(currentIndex)] });
+                await i.update({ embeds: [await generateEmbed(currentIndex)] });
             });
 
             collector.on('end', async () => {
-                // Optionally disable the buttons after the collector expires.
                 const disabledRow = new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
                         .setCustomId('prev')
