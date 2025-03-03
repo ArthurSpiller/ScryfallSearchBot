@@ -61,21 +61,23 @@ module.exports = {
 
                 const legalities = card.legalities;
                 const formattedLegalities = Object.entries(legalities)
-                      .map(([format, status]) => `**${format.charAt(0).toUpperCase() + format.slice(1)}**: ${legalityEmojis[status] || "❓"}`)
-                      .join("\n") || "No legalities available";
+                    .map(([format, status]) => `**${format.charAt(0).toUpperCase() + format.slice(1)}**: ${legalityEmojis[status] || "❓"}`)
+                    .join("\n") || "No legalities available";
 
-                const CMId = card.cardmarket_id;
-                const CMUrl = `https://api.cardmarket.com/ws/v2.0/products/${CMId}`;
+                // const CMId = card.cardmarket_id;
+                // const CMUrl = `https://api.cardmarket.com/ws/v2.0/products/${CMId}`;
+
+                const CMUrl = card.purchase_uris.cardmarket;
 
                 return {
                     title: card.name,
                     description: description || "No description available.",
                     fields: [
-                        {name: "Mana Cost", value: mana_cost || "N/A", inline: true},
-                        {name: "Type", value: card.type_line || "N/A", inline: true},
-                        {name: "Set", value: card.set_name || "N/A", inline: true},
-                        {name: "Legalities", value: formattedLegalities, inline: false},
-                        {name: "CardMarket Value", value: `[View on Cardmarket](${CMUrl})`, inline: true}
+                        { name: "Mana Cost", value: mana_cost || "N/A", inline: true },
+                        { name: "Type", value: card.type_line || "N/A", inline: true },
+                        { name: "Set", value: card.set_name || "N/A", inline: true },
+                        { name: "Legalities", value: formattedLegalities, inline: false },
+                        { name: "CardMarket Value", value: `[View on Cardmarket](${CMUrl})`, inline: true }
                     ],
                     thumbnail: {
                         url: card.card_faces?.[1]?.image_uris?.normal || ""
@@ -109,7 +111,7 @@ module.exports = {
 
             const collector = message.createMessageComponentCollector({
                 filter: i => i.user.id === interaction.user.id,
-                time: 60000
+                time: 600000
             });
 
             collector.on('collect', async i => {
