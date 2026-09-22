@@ -24,7 +24,7 @@ module.exports = {
 
         try {
             const url = `https://api.scryfall.com/cards/search?q=game:paper -t:contraption -t:attraction ${encodeURIComponent(query)}`;
-            const response = await fetch(url);
+            const response = await fetch(url, { headers: { 'User-Agent': 'ScryfallSearchBot' } });
             const data = await response.json();
 
             if (data.object === 'error' || !data.data || data.data.length === 0) {
