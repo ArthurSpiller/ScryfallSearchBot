@@ -23,7 +23,7 @@ module.exports = {
 
             // Optional: You might want to limit the total pages to avoid huge datasets.
             while (url) {
-                const response = await fetch(url);
+                const response = await fetch(url, { headers: { 'User-Agent': 'ScryfallSearchBot' } });
                 const data = await response.json();
 
                 if (data.object === 'error' || !data.data) {
@@ -115,7 +115,7 @@ module.exports = {
                         mana_cost = card.card_faces[0].mana_cost;
                 }
 
-                
+
                 worksheet.addRow({
                     name: card.name,
                     mana_cost: mana_cost || '',

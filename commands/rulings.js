@@ -17,7 +17,7 @@ module.exports = {
 
         try {
             const url = `https://api.scryfall.com/cards/search?q=${encodeURIComponent(query)}`;
-            const response = await fetch(url);
+            const response = await fetch(url, { headers: { 'User-Agent': 'ScryfallSearchBot' } });
             const data = await response.json();
 
             if (data.object === 'error' || !data.data || data.data.length === 0) {
@@ -31,9 +31,9 @@ module.exports = {
             async function generateEmbed(index) {
                 const card = cards[index];
                 const rulingUrl = `https://api.scryfall.com/cards/${card.set}/${card.collector_number}/rulings`;
-                const rulingResponse = await fetch(rulingUrl);
+                const rulingResponse = await fetch(rulingUrl, { headers: { 'User-Agent': 'ScryfallSearchBot' } });
                 const rulingData = await rulingResponse.json();
-                
+
                 let rulings = rulingData.data.map(ruling => `- ${ruling.published_at}: ${ruling.comment}`);
 
                 const embed = new EmbedBuilder()
